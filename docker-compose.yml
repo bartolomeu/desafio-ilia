@@ -1,0 +1,28 @@
+services:
+  mysqldb:
+    image: mysql:8.0.28
+    volumes:
+      - mysql-volume:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: 'db-ilia'
+      MYSQL_ROOT_PASSWORD: 'pass123'
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+  api:
+    build: ./
+    environment:
+      DB_HOST: 'mysqldb'
+      DB_PORT: 3306
+      DB_USERNAME: 'root'
+      DB_PASSWORD: 'pass123'
+      DB_DATABASE: 'db-ilia'
+    ports:
+      - '3000:3000'
+    depends_on:
+      - mysqldb
+  
+
+volumes:
+  mysql-volume:

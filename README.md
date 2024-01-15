@@ -1,30 +1,69 @@
 # Ília - Desafio Técnico
 
-## Descrição
-Olá, e obrigado por aceitar realizar o desafio técnico do nosso processo seletivo! (:
+## Autor: Bartolomeu Spegiorin Gusella
 
-O desafio consiste na implementação de uma API de folha de ponto, descrita em api.yaml. Todas as informações necessárias sobre a construção da API estão contidas nesse arquivo.
+## Como rodar o projeto 
 
-O desafio será testado usando Docker. Certifique-se de que todo o ambiente necessário para a execução do projeto esteja descrito de maneira que seja possível testar o projeto apenas criando um container.
+### Pela 1ª vez
+com o docker instalado, rode o comando
+```
+docker compose build 
+```
+depois rode este comando
+```
+docker compose up
+```
+O comando `compose up` vai subir 2 containers, a aplicação e o banco de dados MySQL
 
-A API pode ser visualizada utilizando o [Swagger Editor](https://editor.swagger.io) com o arquivo yaml fornecido. 
+Agora vamos rodar a migração para criar a tabela do sistema. Primeiro precisamos saber o nome do conteiner da aplicação, neste caso o projeto foi clonado para a pasta `desafio-ilia`, então ao rodar o comando
 
-## Q&A
-### Qual framework/linguagem devo utilizar?
-Para facilitar a avaliação do desafio, pedimos que ele seja realizado em .NET, Java ou NodeJS.
+```
+docker ps
+```
+Exibe-se a seguinte saída
 
-### Como o meu projeto será avaliado?
-Os três prontos principais são os seguintes:
-- Ambiente: Como mencionado acima, é esperado que seja possível ter um ambiente com o projeto executando de maneira fácil e rápida. Qualquer instrução necessária para isso deve ser fornecida pelo desenvolvedor. Esse será o primeiro ponto a ser avaliado.
-- API: O ponto principal do teste é a implementação da API, exatamente como descrita no arquivo api.yaml. Os diferentes erros estão fornecidos como exemplos na documentação da API. Nenhum dos cenários descritos como erro na documentação deve ser permitido pelo serviço.
-- Testes: É esperado que, ao mínimo, sejam criados testes unitários para as funcionalidades implementadas no desafio.
-Além disso, naturalmente, o código do desafio será avaliado.
+```
+CONTAINER ID   IMAGE              COMMAND                  CREATED         STATUS         PORTS                                                  NAMES
+98f1e1cd5535   desafio-ilia-api   "docker-entrypoint.s…"   2 minutes ago   Up 2 minutes   0.0.0.0:3000->3000/tcp, :::3000->3000/tcp              desafio-ilia-api-1
+4d6415df752c   mysql:8.0.28       "docker-entrypoint.s…"   30 hours ago    Up 2 minutes   0.0.0.0:3306->3306/tcp, :::3306->3306/tcp, 33060/tcp   desafio-ilia-mysqldb-1
+```
 
-### Durante a implementação, encontrei um cenário que não está 100% claro para mim como deve ser implementado. Como devo proceder?
-Ao encontrar alguma situação além do que está descrito na documentação da API, faça da maneira que, na sua visão, faz mais sentido para o contexto de uma API de controle de folha de ponto.
+Note que o conteiner da imagem `desafio-ilia-api` ganhou o nome `desafio-ilia-api-1`,
+então rode o comando trocando `<mycontainer>` pelo nome recebido no comando anterior, neste caso `desafio-ilia-api-1`
 
-### Terminei a implementação da API. É necessário fazer mais alguma coisa?
-Não há nenhum outro requisito fixo além dos especificados na documentação da API e nesse documento. Porém, pedimos que, dentro do prazo estabelecido, o desafio seja entregue da maneira mais completa possível. Será avaliado o que o candidato considera ser essencial para a entrega do projeto.
+```
+docker exec -it <mycontainer> bash
 
-### Terminei o desafio. Como faço a entrega?
-Envie-nos por favor um link com o repositório para que possamos dar uma olhada no código. 😉
+docker exec -it desafio-ilia-api-1 base
+```
+Logo você estará dentro do conteiner, basta rodar o comando para criar as tabelas
+
+```
+npm run typeorm:run-migrations
+```
+
+Procedendo desta maneira, os conteiners estão criados e em execução, cujo acesso se dá pelo swagger da api pelo http://localhost:3000/api
+
+Para sair do terminal use o comando `exit` ou `ctrl+C`
+
+### Rodando o projeto nas vezes seguinte
+Depois de rodar o build no compose e a migração, basta usar o comando na pasta do projeto
+
+```
+docker compose up
+```
+
+## Considerações
+Alguns dados ficam subentendidos, como quantidade de dias a ser trabalhado no mês
+(calcula feriado?)
+Neste caso usei o valor `22`.
+
+Usei o valor absoluto `8` como padrão para horas trabalhadas por dia
+
+### Usuário
+
+O arquivo api.yml não fez nenhuma menção ao funcionário/usuário. Usualmente, não há sentido um sistema de folha de ponto que não tem uma entidade usuário/funcionário. Portanto pressupõe-se que o usuário está logado no sistema e que informa seu ID *(numérico) no cabeçalho da requisição no campo `profile`. Não foi feita nenhuma validação deste campo, pois subentende-se que em um projeto real seria utilizado um JWT para trafegar a informação criptografada, de forma segura e com prazo de expiração
+
+### README.MD antigo
+
+O conteúdo anteior deste arquivo pode ser encontrado no arquivo `INITIAL_INSTRUCTIONS.md`

@@ -1,0 +1,8 @@
+POST http://localhost:3000/v1/batidas
+profile: 1
+content-type: application/json
+
+
+{
+  "momento":"2024-01-12T18:00:00"
+}
